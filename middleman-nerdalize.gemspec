@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
 	s.add_runtime_dependency("middleman-core", [">= 4.2.1"])
 
 	# Additional dependencies
+	s.add_runtime_dependency("nokogiri", ">= 1.8.0")
 	s.add_runtime_dependency("html-proofer", ">= 3.7.2")
 	s.add_runtime_dependency("kramdown", ">= 1.14.0")
 end
