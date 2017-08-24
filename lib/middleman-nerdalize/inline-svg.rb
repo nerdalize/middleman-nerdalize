@@ -4,6 +4,14 @@ module MiddlemanNerdalize
 
 	class InlineSVG < Middleman::Extension
 
+		def initialize(app, options_hash={}, &block)
+			# Call super to build options from the options_hash
+			super
+
+			require 'nokogiri'
+
+		end
+
 		def after_configuration
 			app.use Middleware, middleman_app: app
 		end

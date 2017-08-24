@@ -5,6 +5,14 @@ module MiddlemanNerdalize
 	# Extension namespace
 	class Extension < ::Middleman::Extension
 
+		def initialize(app, options_hash={}, &block)
+			# Call super to build options from the options_hash
+			super
+
+			require 'nokogiri'
+
+		end
+
 		helpers do
 
 			def strip_html(string)
