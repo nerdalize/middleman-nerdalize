@@ -15,7 +15,7 @@ module MiddlemanNerdalize
 		def after_configuration
 
 			# Set markdown to use our custom Kramdown parser.
-			app.config[:markdown][:input] = NerdalizeKramdownParser
+			app.config[:markdown][:input] = KramdownParser
 
 		end
 
@@ -28,7 +28,7 @@ module MiddlemanNerdalize
 		end
 
 		# Custom Kramdown parser with various additions
-		class NerdalizeKramdownParser < ::Kramdown::Parser::Kramdown
+		class KramdownParser < ::Kramdown::Parser::Kramdown
 
 			def initialize(source, options)
 				super
