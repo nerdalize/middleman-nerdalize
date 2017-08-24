@@ -1,5 +1,5 @@
+require 'middleman-core'
 require 'html-proofer'
-require 'middleman-core/cli'
 
 module Middleman::Cli
 

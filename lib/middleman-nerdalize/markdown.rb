@@ -1,3 +1,4 @@
+require 'middleman-core'
 require 'kramdown/parser/kramdown'
 
 module MiddlemanNerdalize

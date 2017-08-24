@@ -1,3 +1,5 @@
+require 'middleman-core'
+
 module MiddlemanNerdalize
 
 	class InlineSVG < Middleman::Extension
