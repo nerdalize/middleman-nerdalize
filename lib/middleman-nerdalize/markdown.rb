@@ -112,7 +112,7 @@ module MiddlemanNerdalize
 							link.attr['class'] = 'btn'
 						else
 							link.attr['class'] = 'arrow-link'
-							link.children << Element.new(:raw, ' <svg class="icon chevron-right-icon" role="img"><use xlink:href="#icons/chevron-right"></use></svg>')
+							link.children << Element.new(:raw, ' <svg width="12" height="12" viewBox="0 0 12 12" stroke-width="2" stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round"><title>Right arrow</title><polyline stroke-linejoin="round" points="6.5 2 10 6 6.5 10"/><path d="M2 6h7"/></svg>')
 						end
 						footer.children << link
 					end
