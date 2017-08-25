@@ -1,5 +1,25 @@
+require 'middleman-core'
 require 'middleman-core/cli'
 require 'html-proofer'
+
+module MiddlemanNerdalize
+
+	# Extension namespace
+	class HTMLProofer < ::Middleman::Extension
+
+		def initialize(app, options_hash={}, &block)
+			# Call super to build options from the options_hash
+			super app, {}, &block
+
+			if !defined? MiddlemanNerdalize::HTMLProofer::Options
+				MiddlemanNerdalize::HTMLProofer.const_set('Options', options_hash)
+			end
+
+		end
+
+	end
+
+end
 
 module Middleman::Cli
 
@@ -27,19 +47,24 @@ module Middleman::Cli
 		end
 
 		def test
+
+			if !defined? MiddlemanNerdalize::HTMLProofer::Options
+				puts "HTML Proofer isn't activated in config.rb. Therefore the test command isn't enabled."
+				exit 1
+			end
+
+			proofer_options = ::MiddlemanNerdalize::HTMLProofer::Options.dup
+			proofer_options[:disable_external] = true if !options['external-links']
+
 			ENV['CONTEXT'] ||= 'test'
-			ENV['DEPLOY_PRIME_URL'] ||= 'https://www.nerdalize.com'
+			if proofer_options.has_key?(:internal_domains)
+				ENV['DEPLOY_PRIME_URL'] ||= "https://#{proofer_options[:internal_domains].first}"
+			end
 
 			# TODO: Pass valid options to build.
 			invoke Middleman::Cli::Build, [], { verbose: options['verbose'] }
 
-			HTMLProofer.check_directory("./build",
-				disable_external: !options['external-links'],
-				check_html: true,
-				empty_alt_ignore: true,
-				url_ignore: [/^#email-protection.*/, /^\/blog\/.*(#en|#nl)/, /(http)?s?:\/\/(www.)?linkedin.com.*/],
-				internal_domains: ['www.nerdalize.com']
-			).run
+			HTMLProofer.check_directory("./build", proofer_options).run
 		end
 
 		# Add to CLI

@@ -1,5 +1,4 @@
 require "middleman-core"
-require "middleman-nerdalize/html-proofer"
 
 Middleman::Extensions.register :nerdalize_markdown do
 	require "middleman-nerdalize/markdown"
@@ -14,4 +13,9 @@ end
 Middleman::Extensions.register :nerdalize do
 	require "middleman-nerdalize/extension"
 	MiddlemanNerdalize::Extension
+end
+
+Middleman::Extensions.register :html_proofer do
+	require "middleman-nerdalize/html-proofer"
+	MiddlemanNerdalize::HTMLProofer
 end
