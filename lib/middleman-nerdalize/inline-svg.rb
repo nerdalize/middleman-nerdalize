@@ -17,15 +17,17 @@ module MiddlemanNerdalize
 		end
 
 		helpers do
-			def icon(path, inline: false)
+			def icon(path, inline: false, color: nil)
 
 				path_parts = path.split('/')
 				class_name = 'icon ' + path_parts.map { |part| "#{part}-icon" }.join(' ')
 
+				style = "color: #{color};" if color
+
 				if inline == true
-					svg("icons/#{path}", class: class_name )
+					svg("icons/#{path}", style: style, class: class_name)
 				else
-					"<svg class=\"#{class_name}\" role=\"img\"><use xlink:href=\"#icons/#{path}\"></use></svg>"
+					"<svg class=\"#{class_name}\" role=\"img\"#{style ? "style=\"#{style}\"" : ''}><use xlink:href=\"#icons/#{path}\"></use></svg>"
 				end
 			end
 
