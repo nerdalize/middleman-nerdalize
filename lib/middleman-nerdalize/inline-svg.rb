@@ -32,9 +32,8 @@ module MiddlemanNerdalize
 			end
 
 			def svg(name, symbols: false, **attributes)
-				puts name
+
 				path = name =~ /\.svg$/ ? name : "images/#{name}.svg"
-				puts path
 				resource = sitemap.find_resource_by_path(path)
 
 				raise("SVG file #{path} missing") if resource == nil
