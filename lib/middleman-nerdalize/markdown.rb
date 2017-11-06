@@ -95,9 +95,8 @@ module MiddlemanNerdalize
 			end
 
 			def handle_extension(name, opts, body, type, line_no = nil)
-				handled = super
-
-				return handled if handled != false
+				return true if name == 'comment'
+				return true if super != false
 
 				case name
 				when 'blog_story_footer'
