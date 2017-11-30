@@ -1,4 +1,5 @@
 require 'middleman-core'
+require 'fastimage'
 
 module MiddlemanNerdalize
 

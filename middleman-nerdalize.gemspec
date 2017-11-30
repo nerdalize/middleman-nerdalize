@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
 	s.name        = 'middleman-nerdalize'
-	s.version     = '0.0.7'
+	s.version     = '0.0.8'
 	s.platform    = Gem::Platform::RUBY
 	s.authors     = ['Alexander Weiss']
 	s.email       = ['ik@alexanderweiss.nl']
@@ -23,4 +23,5 @@ Gem::Specification.new do |s|
 	s.add_runtime_dependency("nokogiri", ">= 1.8.0")
 	s.add_runtime_dependency("html-proofer", ">= 3.7.2")
 	s.add_runtime_dependency("kramdown", ">= 1.14.0")
+	s.add_runtime_dependency("fastimage", ">= 2.1.0")
 end
