@@ -17,10 +17,12 @@ module MiddlemanNerdalize
 		end
 
 		helpers do
-			def icon(path, inline: false, color: nil)
+			def icon(path, inline: false, color: nil, variation: nil)
 
 				path_parts = path.split('/')
-				class_name = 'icon ' + path_parts.map { |part| "#{part}-icon" }.join(' ')
+				classes = path_parts.map { |part| "#{part}-icon" }
+				classes.append("#{variation}-icon") if variation != nil
+				class_name = "icon " + classes.join(' ')
 
 				style = "color: #{color};" if color
 
