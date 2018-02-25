@@ -23,7 +23,8 @@ module MiddlemanNerdalize
 			# Markdown helper to render markdown to HTML
 			def markdown(source, **locals)
 				context = @app.template_context_class.new(self, locals)
-				Tilt['markdown'].new(app.config.markdown) {source}.render(context)
+				# TODO: Figure out how and why the context gets into the config and if what we're doing here makes senses.
+				Tilt['markdown'].new(app.config.markdown.except :context) {source}.render(context)
 			end
 		end
 
