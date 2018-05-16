@@ -3,6 +3,9 @@ require 'middleman-core'
 module MiddlemanNerdalize
 
 	class InlineSVG < Middleman::Extension
+		expose_to_template :icon
+		expose_to_template :svg
+		expose_to_template :svg_symbols
 
 		def initialize(app, options_hash={}, &block)
 			# Call super to build options from the options_hash
@@ -15,72 +18,107 @@ module MiddlemanNerdalize
 		def after_configuration
 			app.use Middleware, middleman_app: app
 		end
+		
+		def get_path(name)
+			name =~ /\.svg$/ ? name : "images/#{name}.svg"
+		end
+		
+		def read(path)
+		
+			resource = app.sitemap.find_resource_by_path(path)
+			
+			raise("SVG file #{path} missing") if resource == nil
+		
+			# Load file and clean XML tag.
+			content = File.read(resource.source_file)
+			content.gsub(/(<\?xml.*?>|<!DOCTYPE.*?>)/, '')
+			
+		end
 
-		helpers do
-			def icon(path, inline: false, color: nil, variation: nil)
+		def icon(path, inline: false, color: nil, variation: nil)
+		
+			path_parts = path.split('/')
+			classes = path_parts.map { |part| "#{part}-icon" }
+			classes.append("#{variation}-icon") if variation != nil
+			class_name = "icon " + classes.join(' ')
 
-				path_parts = path.split('/')
-				classes = path_parts.map { |part| "#{part}-icon" }
-				classes.append("#{variation}-icon") if variation != nil
-				class_name = "icon " + classes.join(' ')
+			style = "color: #{color};" if color
 
-				style = "color: #{color};" if color
+			if inline == true
+				svg("icons/#{path}", style: style, class: class_name)
+			else
+				"<svg class=\"#{class_name}\" role=\"img\"#{style ? "style=\"#{style}\"" : ''}><use xlink:href=\"#icons/#{path}\"></use></svg>"
+			end
+			
+		end
 
-				if inline == true
-					svg("icons/#{path}", style: style, class: class_name)
-				else
-					"<svg class=\"#{class_name}\" role=\"img\"#{style ? "style=\"#{style}\"" : ''}><use xlink:href=\"#icons/#{path}\"></use></svg>"
-				end
+		def svg(name, symbols: false, **attributes)
+			
+			path = get_path(name)
+			content = read(path)
+
+			# Parse SVG tag and add/replace any attributes.
+
+			svg_tag_string = content.match(/(<svg.*?>)/)[0].gsub(/(xmlns.*?=".*?")/, '')
+			svg_tag = Nokogiri::XML.fragment(svg_tag_string)
+
+			if symbols == true
+				attributes[:width] = 0
+				attributes[:height] = 0
+				attributes[:class] = 'symbols'
 			end
 
-			def svg(name, symbols: false, **attributes)
+			attributes.each do |attribute, value|
+				svg_tag.children[0][attribute.id2name] = value
+			end
 
-				path = name =~ /\.svg$/ ? name : "images/#{name}.svg"
-				resource = sitemap.find_resource_by_path(path)
+			# Prefix ID's and references (unless this is a symbols file)
+			if symbols == false
 
-				raise("SVG file #{path} missing") if resource == nil
+				prefix = path.rpartition('.').first.gsub(/^\//, '').gsub(/\//, '-') + '-'
 
-				# Load file and clean XML tag.
-				content = File.read(resource.source_file)
-				content.gsub!(/(<\?xml.*?>|<!DOCTYPE.*?>)/, '')
+				# Gather all defined ID's (using id="") and add the prefix.
+				ids = []
+				content.gsub!(/(?<=id=")(.*?)(?=")/) do |id|
+					ids << id
+					prefix + id
+				end
+
+				# Add the prefix to all references to the found id.
+				ids.each do |id|
+					content.gsub!(/\##{Regexp.escape(id)}/, '#' + prefix + id)
+				end
+
+			end
+			
+			# Turn back into a nice string.
+			content.gsub!(/(<svg.*?>)/x, svg_tag.to_html.gsub('</svg>', ''))
+			
+		end
+		
+		def svg_symbols(names)
+		
+			symbols = []
+			
+			names.each do |name|
+			
+				content = read(get_path(name))
 
 				# Parse SVG tag and add/replace any attributes.
 
 				svg_tag_string = content.match(/(<svg.*?>)/)[0].gsub(/(xmlns.*?=".*?")/, '')
 				svg_tag = Nokogiri::XML.fragment(svg_tag_string)
-
-				if symbols == true
-					attributes[:width] = 0
-					attributes[:height] = 0
-					attributes[:class] = 'symbols'
-				end
-
-				attributes.each do |attribute, value|
-					svg_tag.children[0][attribute.id2name] = value
-				end
-
-				# Prefix ID's and references (unless this is a symbols file)
-				if symbols == false
-
-					prefix = path.rpartition('.').first.gsub(/^\//, '').gsub(/\//, '-') + '-'
-
-					# Gather all defined ID's (using id="") and add the prefix.
-					ids = []
-					content.gsub!(/(?<=id=")(.*?)(?=")/) do |id|
-						ids << id
-						prefix + id
-					end
-
-					# Add the prefix to all references to the found id.
-					ids.each do |id|
-						content.gsub!(/\##{Regexp.escape(id)}/, '#' + prefix + id)
-					end
-
-				end
-
-				# Turn back into a nice string.
-				content.gsub!(/(<svg.*?>)/x, svg_tag.to_html.gsub('</svg>', ''))
+				
+				tag = "<symbol id=\"#{name}\" viewBox=\"#{svg_tag.children[0]['viewBox']}\">"
+				
+				content.gsub!(/(<svg.*?>)/x, tag)
+				content.gsub!(/(<\/svg>)/x, '</symbol>')
+				
+				symbols << content
 			end
+			
+			"<svg width=\"0\" height=\"0\" class=\"symbols\"><defs/>#{symbols.join}</svg>"
+			
 		end
 
 		class Middleware
