@@ -22,6 +22,6 @@ Gem::Specification.new do |s|
 	# Additional dependencies
 	s.add_runtime_dependency("nokogiri", ">= 1.8.0")
 	s.add_runtime_dependency("html-proofer", ">= 3.7.2")
-	s.add_runtime_dependency("kramdown", ">= 1.14.0")
+	s.add_runtime_dependency("kramdown", ">= 1.17.0")
 	s.add_runtime_dependency("fastimage", ">= 2.1.0")
 end
