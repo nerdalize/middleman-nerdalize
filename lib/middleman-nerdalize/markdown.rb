@@ -1,23 +1,11 @@
 require 'middleman-core'
-require 'kramdown/parser/kramdown'
+require 'middleman-core/renderers/kramdown'
+require 'kramdown'
 
 module MiddlemanNerdalize
 
 	# Extension namespace
 	class Markdown < ::Middleman::Extension
-
-		def initialize(app, options_hash={}, &block)
-			# Call super to build options from the options_hash
-			super
-
-		end
-
-		def after_configuration
-
-			# Set markdown to use our custom Kramdown parser.
-			app.config[:markdown][:input] = KramdownParser
-
-		end
 
 		helpers do
 			# Markdown helper to render markdown to HTML
@@ -125,6 +113,41 @@ module MiddlemanNerdalize
 				end
 			end
 
+		end
+		
+		class KramdownTemplate < ::Middleman::Renderers::KramdownTemplate
+		
+			def prepare
+				options[:input] = KramdownParser
+				super
+			end
+	
+			def evaluate(context, *)
+				MiddlemanKramdownHTML.scope = @context || context
+	
+				@output ||= begin
+					output, warnings = MiddlemanKramdownHTML.convert(@engine.root, @engine.options)
+					@engine.warnings.concat(warnings)
+					output
+				end
+			end
+			
+		end
+	
+		# Custom Kramdown renderer that uses our helpers for images and links
+		class MiddlemanKramdownHTML < ::Middleman::Renderers::MiddlemanKramdownHTML
+	
+			def convert_a(el, indent)
+			
+				content = inner(el, indent)
+	
+				attr = el.attr.dup
+				link = attr.delete('href')
+	
+				scope.link_to(content, link, attr)
+				
+			end
+			
 		end
 
 	end
