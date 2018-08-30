@@ -86,7 +86,7 @@ module MiddlemanNerdalize
 
 				# Add the prefix to all references to the found id.
 				ids.each do |id|
-					content.gsub!(/\##{Regexp.escape(id)}/, '#' + prefix + id)
+					content.gsub!(/\##{Regexp.escape(id)}(?=[\)"])/, '#' + prefix + id)
 				end
 
 			end
